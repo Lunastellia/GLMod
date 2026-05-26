@@ -17,12 +17,11 @@ using GLMod.Class;
 
 namespace GLMod
 {
-    [BepInPlugin(Id, "GLMod", Version)]
+    [BepInPlugin(Id, "GLMod", "5.3.1")]
     [BepInProcess("Among Us.exe")]
     public class GLMod : BasePlugin
     {
         public const string Id = "glmod";
-        public const string Version = "5.4.0";
 
         public Harmony Harmony { get; } = new Harmony(Id);
 
@@ -219,7 +218,6 @@ namespace GLMod
             ServiceManager.EnableService(ServiceType.Turns);
             ServiceManager.EnableService(ServiceType.Votes);
             ServiceManager.EnableService(ServiceType.Roles);
-            ServiceManager.EnableService(ServiceType.Shield);
 
             stepConf.Value = "YES";
             stepRpc.Value = "YES";
@@ -264,7 +262,6 @@ namespace GLMod
         public static IEnumerator SendGame(System.Action<bool> onComplete = null) => GameStateManager?.SendGame(onComplete);
         public static IEnumerator SyncGameId(System.Action<bool> onComplete = null) => GameStateManager?.SyncGameId(onComplete);
         public static IEnumerator AddMyPlayer(System.Action<bool> onComplete = null) => GameStateManager?.AddMyPlayer(onComplete);
-        public static IEnumerator GetShieldPlayer(System.Action<string> onComplete = null, System.Action<string> onError = null) => GameStateManager?.GetShieldPlayer(onComplete, onError);
         public static void SetWinnerTeams(List<string> winners) => GameStateManager?.SetWinnerTeams(winners);
         public static void AddWinnerPlayer(string playerName) => GameStateManager?.AddWinnerPlayer(playerName);
         public static IEnumerator EndGame() => GameStateManager?.EndGame();
@@ -277,6 +274,12 @@ namespace GLMod
         public static void disableAllServices() => ServiceManager?.DisableAllServices();
         public static bool existService(ServiceType service) => ServiceManager?.ExistsService(service) ?? false;
         public static bool existService(string service) => ServiceManager?.ExistsService(service) ?? false;
+
+        public static bool IsGameActive() => GameStateManager?.IsGameActive() ?? false;
+        public static void EnsureGameInitialized() => GameStateManager?.EnsureGameInitialized();
+        public static void SetMap(string mapName) => GameStateManager?.SetMap(mapName);
+        public static void SetRanked(bool isRanked) => GameStateManager?.SetRanked(isRanked);
+        public static void SetRankedString(string rankedValue) => GameStateManager?.SetRankedString(rankedValue);
 
     }
 }

@@ -69,15 +69,6 @@ namespace GLMod.Services.Interfaces
         IEnumerator AddMyPlayer(System.Action<bool> onComplete = null);
 
         /// <summary>
-        /// Asks the server which player should benefit from a T1 shield for the current game.
-        /// Retries while the API returns 400 (not all players have sent their addMyPlayer yet).
-        /// </summary>
-        /// <param name="onComplete">Callback with the in-game player name (PseudoInGame)</param>
-        /// <param name="onError">Callback with the error message if the call ultimately fails</param>
-        /// <returns>Coroutine</returns>
-        IEnumerator GetShieldPlayer(System.Action<string> onComplete = null, System.Action<string> onError = null);
-
-        /// <summary>
         /// Sets the winning teams
         /// </summary>
         /// <param name="winners">List of winning team names</param>
@@ -107,5 +98,34 @@ namespace GLMod.Services.Interfaces
         /// Resets the game state
         /// </summary>
         void ResetGame();
+
+        /// <summary>
+        /// Checks if a game is currently active
+        /// </summary>
+        /// <returns>True if CurrentGame is initialized</returns>
+        bool IsGameActive();
+
+        /// <summary>
+        /// Sets the map name for the current game (creates game if needed)
+        /// </summary>
+        /// <param name="mapName">Map name</param>
+        void SetMap(string mapName);
+
+        /// <summary>
+        /// Sets the ranked status for the current game (creates game if needed)
+        /// </summary>
+        /// <param name="isRanked">Ranked status</param>
+        void SetRanked(bool isRanked);
+
+        /// <summary>
+        /// Sets the ranked status for the current game using string value (creates game if needed)
+        /// </summary>
+        /// <param name="rankedValue">Ranked status as string ("0" or "1")</param>
+        void SetRankedString(string rankedValue);
+
+        /// <summary>
+        /// Ensures CurrentGame is initialized with default values
+        /// </summary>
+        void EnsureGameInitialized();
     }
 }

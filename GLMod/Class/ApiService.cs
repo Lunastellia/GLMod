@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine.Networking.Match;
 
 namespace GLMod.Class
 {
@@ -12,12 +13,12 @@ namespace GLMod.Class
     {
         public static IEnumerator PostFormAsync(string url, Dictionary<string, string> formValues, System.Action<string> onComplete, System.Action<string> onError = null)
         {
-            // Variables shared across threads
+            // Variables partagées entre threads
             bool done = false;
             string error = null;
             string result = null;
 
-            // Keep a reference to the task for proper handling
+            // Stocker la référence à la tâche pour une meilleure gestion
             var task = System.Threading.Tasks.Task.Run(async () =>
             {
                 try
@@ -34,16 +35,16 @@ namespace GLMod.Class
                 }
                 finally
                 {
-                    // Set done last to guarantee visibility of the other variables
+                    // S'assurer que done est défini en dernier pour garantir la visibilité des autres variables
                     System.Threading.Volatile.Write(ref done, true);
                 }
             });
 
-            // Wait for completion with a volatile read
+            // Attendre la fin de la tâche avec une lecture volatile
             while (!System.Threading.Volatile.Read(ref done))
                 yield return null;
 
-            // Result handling
+            // Gestion du résultat
             if (error != null)
             {
                 onError?.Invoke(error);
@@ -56,11 +57,11 @@ namespace GLMod.Class
 
         public static IEnumerator PostFormWithErrorHandlingAsync(string url, Dictionary<string, string> formValues, System.Action<ApiResponse> onComplete)
         {
-            // Variables shared across threads
+            // Variables partagées entre threads
             ApiResponse apiResponse = null;
             bool done = false;
 
-            // Keep a reference to the task for proper handling
+            // Stocker la référence à la tâche pour une meilleure gestion
             var task = System.Threading.Tasks.Task.Run(async () =>
             {
                 try
@@ -78,7 +79,7 @@ namespace GLMod.Class
                 }
                 catch (System.Exception ex)
                 {
-                    // On network exception, build an error response
+                    // En cas d'exception réseau, créer une réponse d'erreur
                     apiResponse = new ApiResponse
                     {
                         IsSuccess = false,
@@ -88,16 +89,16 @@ namespace GLMod.Class
                 }
                 finally
                 {
-                    // Set done last to guarantee visibility of the other variables
+                    // S'assurer que done est défini en dernier pour garantir la visibilité des autres variables
                     System.Threading.Volatile.Write(ref done, true);
                 }
             });
 
-            // Wait for completion with a volatile read
+            // Attendre la fin de la tâche avec une lecture volatile
             while (!System.Threading.Volatile.Read(ref done))
                 yield return null;
 
-            // Return the result via callback
+            // Retourner le résultat via le callback
             onComplete?.Invoke(apiResponse);
         }
     }

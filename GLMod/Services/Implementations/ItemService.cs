@@ -56,7 +56,7 @@ namespace GLMod.Services.Implementations
             string responseString = null;
             string error = null;
 
-            // Call the ApiService coroutine
+            // Appel de la coroutine ApiService
             yield return ApiService.PostFormAsync(_apiEndpoint + "/player/challengerItems", form,
                 result => {
                     responseString = result;
@@ -66,14 +66,14 @@ namespace GLMod.Services.Implementations
                 }
             );
 
-            // Check for error
+            // Vérifier l'erreur
             if (error != null)
             {
-                Log("HTTP error: " + error);
+                Log("Erreur HTTP : " + error);
                 yield break;
             }
 
-            // Deserialize the response
+            // Désérialiser la réponse
             try
             {
                 _items.Clear();
@@ -82,7 +82,7 @@ namespace GLMod.Services.Implementations
             }
             catch (Exception ex)
             {
-                Log("Error while loading items: " + ex.Message);
+                Log("Erreur lors du chargement des items: " + ex.Message);
             }
         }
 
@@ -101,7 +101,7 @@ namespace GLMod.Services.Implementations
             string responseString = null;
             string error = null;
 
-            // Call the ApiService coroutine
+            // Appel de la coroutine ApiService
             yield return ApiService.PostFormAsync(_apiEndpoint + "/user/steamownerships", form,
                 result => {
                     responseString = result;
@@ -111,14 +111,14 @@ namespace GLMod.Services.Implementations
                 }
             );
 
-            // Check for error
+            // Vérifier l'erreur
             if (error != null)
             {
-                Log("HTTP error: " + error);
+                Log("Erreur HTTP : " + error);
                 yield break;
             }
 
-            // Deserialize the response
+            // Désérialiser la réponse
             try
             {
                 _steamOwnerships.Clear();
@@ -127,7 +127,7 @@ namespace GLMod.Services.Implementations
             }
             catch (Exception ex)
             {
-                Log("Error while loading DLC ownerships: " + ex.Message);
+                Log("Erreur lors du chargement des DLC ownerships: " + ex.Message);
             }
         }
 

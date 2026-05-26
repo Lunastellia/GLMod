@@ -38,13 +38,13 @@ namespace GLMod.Class
             processEnabled = true;
             cachedSabotage = null;
 
-            // Stop the previous coroutine if it exists
+            // Arrêter la coroutine précédente si elle existe
             if (backgroundCoroutine != null)
             {
                 CoroutineRunner.Run(StopBackgroundCoroutine());
             }
 
-            // Start the new coroutine
+            // Démarrer la nouvelle coroutine
             backgroundCoroutine = CoroutineRunner.Run(handleProcess());
         }
 
@@ -52,7 +52,7 @@ namespace GLMod.Class
         {
             processEnabled = false;
 
-            // Stop the coroutine
+            // Arrêter la coroutine
             if (backgroundCoroutine != null)
             {
                 CoroutineRunner.Run(StopBackgroundCoroutine());
@@ -63,8 +63,8 @@ namespace GLMod.Class
         {
             if (backgroundCoroutine != null)
             {
-                // Note: Unity's StopCoroutine does not always behave correctly under IL2CPP.
-                // We rely on the processEnabled flag for a clean shutdown instead.
+                // Note: Unity's StopCoroutine ne fonctionne pas toujours bien en IL2CPP
+                // On utilise plutôt le flag processEnabled pour arrêter proprement
                 backgroundCoroutine = null;
             }
             yield break;

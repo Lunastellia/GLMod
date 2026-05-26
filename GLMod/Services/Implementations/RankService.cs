@@ -65,7 +65,7 @@ namespace GLMod.Services.Implementations
             string responseString = null;
             string error = null;
 
-            // Call the ApiService coroutine
+            // Appel de la coroutine ApiService
             yield return ApiService.PostFormAsync(_apiEndpoint + "/player/rank", form,
                 result => {
                     responseString = result;
@@ -75,7 +75,7 @@ namespace GLMod.Services.Implementations
                 }
             );
 
-            // Result handling
+            // Gestion du résultat
             if (error != null)
             {
                 errorRank.error = "Login fail";
@@ -83,7 +83,7 @@ namespace GLMod.Services.Implementations
                 yield break;
             }
 
-            // Deserialize and return the rank
+            // Désérialiser et retourner le rang
             try
             {
                 GLRank rank = GLJson.Deserialize<GLRank>(responseString);
@@ -91,7 +91,7 @@ namespace GLMod.Services.Implementations
             }
             catch (Exception ex)
             {
-                Log("Error while deserializing rank: " + ex.Message);
+                Log("Erreur lors de la désérialisation du rang: " + ex.Message);
                 errorRank.error = "Parse error";
                 onComplete?.Invoke(errorRank);
             }

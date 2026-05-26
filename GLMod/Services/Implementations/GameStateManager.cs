@@ -190,7 +190,7 @@ namespace GLMod.Services.Implementations
             string responseString = null;
             string error = null;
 
-            // Call the ApiService coroutine
+            // Appel de la coroutine ApiService
             yield return ApiService.PostFormAsync(_apiEndpoint + "/game/start", form,
                 result => {
                     responseString = result;
@@ -200,7 +200,7 @@ namespace GLMod.Services.Implementations
                 }
             );
 
-            // Result handling
+            // Gestion du résultat
             if (error != null)
             {
                 Log("[SendGame] fail, error: " + error);
@@ -262,7 +262,7 @@ namespace GLMod.Services.Implementations
                 }
             });
 
-            // Wait without blocking the main thread, using a volatile read
+            // Attend la fin sans bloquer le thread principal avec une lecture volatile
             while (!System.Threading.Volatile.Read(ref done))
                 yield return null;
 
@@ -288,7 +288,7 @@ namespace GLMod.Services.Implementations
             PlayerControl me;
             GLPlayer myPlayer;
 
-            // Initial player validation
+            // Validation initiale du joueur
             try
             {
                 me = PlayerControl.LocalPlayer;
@@ -323,13 +323,13 @@ namespace GLMod.Services.Implementations
                 Log("[AddMyPlayer] My name null or empty");
             }
 
-            // Wait for the game ID to become available
+            // Attendre que l'ID du jeu soit disponible
             while (string.IsNullOrEmpty(CurrentGame.id))
             {
                 yield return new WaitForSeconds(0.1f);
             }
 
-            // Prepare the form
+            // Préparer le formulaire
             var form = new Dictionary<string, string>
             {
                 { "gameId", CurrentGame.id },
@@ -340,7 +340,7 @@ namespace GLMod.Services.Implementations
             string responseString = null;
             string error = null;
 
-            // Call the ApiService coroutine
+            // Appel de la coroutine ApiService
             yield return ApiService.PostFormAsync(_apiEndpoint + "/game/addMyPlayer", form,
                 result => {
                     responseString = result;
@@ -350,58 +350,12 @@ namespace GLMod.Services.Implementations
                 }
             );
 
-            // Error handling
+            // Gestion des erreurs
             if (error != null)
             {
                 Log("[AddMyPlayer] Add my player fail, error: " + error);
             }
             onComplete?.Invoke(true);
-        }
-
-        public IEnumerator GetShieldPlayer(System.Action<string> onComplete = null, System.Action<string> onError = null)
-        {
-            if (CurrentGame == null || string.IsNullOrEmpty(CurrentGame.id))
-            {
-                Log("[GetShieldPlayer] Current game null or missing id");
-                onError?.Invoke("game not ready");
-                yield break;
-            }
-
-            string gameId = CurrentGame.id;
-            const int maxAttempts = 10;
-            const float retryDelay = 1.0f;
-
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                var form = new Dictionary<string, string>
-                {
-                    { "gameId", gameId }
-                };
-
-                ApiResponse response = null;
-                yield return ApiService.PostFormWithErrorHandlingAsync(_apiEndpoint + "/game/getShieldPlayer", form,
-                    result => { response = result; });
-
-                if (response != null && response.IsSuccess)
-                {
-                    onComplete?.Invoke(response.Content);
-                    yield break;
-                }
-
-                if (response != null && response.StatusCode == 400)
-                {
-                    yield return new WaitForSeconds(retryDelay);
-                    continue;
-                }
-
-                string errMsg = response?.Content ?? "no response";
-                Log($"[GetShieldPlayer] fail (status {response?.StatusCode}): {errMsg}");
-                onError?.Invoke(errMsg);
-                yield break;
-            }
-
-            Log("[GetShieldPlayer] max attempts reached, players still not all registered");
-            onError?.Invoke("max attempts reached");
         }
 
         public void SetWinnerTeams(List<string> winners)
@@ -515,7 +469,7 @@ namespace GLMod.Services.Implementations
                     var response = await HttpHelper.Client.PostAsync(_apiEndpoint + "/game/end", content).ConfigureAwait(false);
                     response.EnsureSuccessStatusCode();
 
-                    // Read the response if needed
+                    // Lecture de la réponse si nécessaire
                     var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }
                 catch (Exception e)
@@ -528,11 +482,11 @@ namespace GLMod.Services.Implementations
                 }
             });
 
-            // Wait for the task to complete with a volatile read
+            // Attendre la fin de la tâche avec une lecture volatile
             while (!System.Threading.Volatile.Read(ref done))
                 yield return null;
 
-            // Result handling
+            // Gestion du résultat
             if (error != null)
             {
                 Log("[EndGame] End Game fail, error: " + error);
@@ -560,6 +514,53 @@ namespace GLMod.Services.Implementations
         {
             CurrentGame = null;
             Step = GameStep.Initial;
+        }
+
+        public bool IsGameActive()
+        {
+            return CurrentGame != null;
+        }
+
+        public void EnsureGameInitialized()
+        {
+            if (CurrentGame == null)
+            {
+                string defaultCode = GameCode ?? GameConstants.DEFAULT_GAME_CODE;
+                string defaultMap = GameMap ?? GameConstants.DEFAULT_MAP_NAME;
+                CurrentGame = new GLGame(defaultCode, defaultMap, false, _configService.ModName);
+                Log("[EnsureGameInitialized] Game auto-initialized with default values");
+            }
+        }
+
+        public void SetMap(string mapName)
+        {
+            if (string.IsNullOrEmpty(mapName))
+            {
+                Log("[SetMap] Map name is null or empty");
+                return;
+            }
+
+            EnsureGameInitialized();
+            CurrentGame.map = mapName;
+            GameMap = mapName;
+        }
+
+        public void SetRanked(bool isRanked)
+        {
+            EnsureGameInitialized();
+            CurrentGame.ranked = isRanked ? "1" : "0";
+        }
+
+        public void SetRankedString(string rankedValue)
+        {
+            if (string.IsNullOrEmpty(rankedValue))
+            {
+                Log("[SetRankedString] Ranked value is null or empty");
+                return;
+            }
+
+            EnsureGameInitialized();
+            CurrentGame.ranked = rankedValue;
         }
     }
 }
